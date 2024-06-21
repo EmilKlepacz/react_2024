@@ -10,6 +10,8 @@ type Story = {
 };
 
 const App = () => {
+    console.log("App renders");
+
     const stories = [
         {
             title: 'React',
@@ -33,29 +35,33 @@ const App = () => {
         <div>
             <h1>My Hacker Stories</h1>
 
-            <Search />
+            <Search/>
 
-            <hr />
+            <hr/>
 
-            <List list={stories} />
+            <List list={stories}/>
         </div>
     );
 };
 
 const Search = () => {
+    console.log("Search renders");
+    const [searchTerm, setSearchTerm] = React.useState('');
+
     const handleChange = (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
-        // synthetic event
-        console.log(event);
-        // value of target (here: input HTML element)
-        console.log(event.target.value);
+        setSearchTerm(event.target.value);
     };
 
     return (
         <div>
             <label htmlFor="search">Search: </label>
-            <input id="search" type="text" onChange={handleChange} />
+            <input id="search" type="text" onChange={handleChange}/>
+
+            <p>
+                Searching for <strong>{searchTerm}</strong>
+            </p>
         </div>
     );
 };
@@ -67,7 +73,7 @@ type ListProps = {
 const List = (props: ListProps) => (
     <ul>
         {props.list.map((item) => (
-            <Item key={item.objectID} item={item} />
+            <Item key={item.objectID} item={item}/>
         ))}
     </ul>
 );
