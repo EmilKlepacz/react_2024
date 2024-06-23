@@ -1,12 +1,12 @@
 import * as React from 'react';
 
 type Story = {
-    objectID: number;
-    url: string;
     title: string;
+    url: string;
     author: string;
     num_comments: number;
     points: number;
+    objectID: number;
 };
 
 const App = () => {
@@ -76,9 +76,9 @@ type ListProps = {
     list: Story[];
 };
 
-const List = (props: ListProps) => (
+const List = ({list}: ListProps) => (
     <ul>
-        {props.list.map((item) => (
+        {list.map((item) => (
             <Item key={item.objectID} item={item}/>
         ))}
     </ul>
@@ -88,14 +88,14 @@ type ItemProps = {
     item: Story;
 };
 
-const Item = (props: ItemProps) => (
+const Item = ({item}: ItemProps) => (
     <li>
     <span>
-      <a href={props.item.url}>{props.item.title}</a>
+      <a href={item.url}>{item.title}</a>
     </span>
-        <span>{props.item.author}</span>
-        <span>{props.item.num_comments}</span>
-        <span>{props.item.points}</span>
+        <span>{item.author}</span>
+        <span>{item.num_comments}</span>
+        <span>{item.points}</span>
     </li>
 );
 
