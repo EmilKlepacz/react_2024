@@ -79,16 +79,18 @@ type ListProps = {
 const List = ({list}: ListProps) => (
     <ul>
         {list.map((item) => (
-            <Item key={item.objectID} item={item}/>
+            <Item key={item.objectID} {...item} />
         ))}
     </ul>
 );
 
-type ItemProps = {
-    item: Story;
-};
-
-const Item = ({item}: ItemProps) => (
+const Item = (item: {
+    title: string,
+    url: string,
+    author: string,
+    num_comments: number,
+    points: number
+}) => (
     <li>
     <span>
       <a href={item.url}>{item.title}</a>
