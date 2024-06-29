@@ -68,6 +68,15 @@ const InputWithLabel = ({id, type = 'text', label, value, onInputChange}: InputW
     </>
 );
 
+type ButtonProps = {
+    text: string,
+    onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+}
+
+const Button = ({text, onClick}: ButtonProps) => (
+    <button type="button" onClick={onClick}>{text}</button>
+);
+
 const App = () => {
     const stories = [
         {
@@ -94,6 +103,18 @@ const App = () => {
         setSearchTerm(event.target.value);
     };
 
+    const onClickOne = (event: React.MouseEvent<HTMLButtonElement>) => {
+        console.log("button one clicked! type of event: " + event.type);
+    }
+
+    const onClickTwo = (event: React.MouseEvent<HTMLButtonElement>) => {
+        console.log("button two clicked! type of event: " + event.type);
+    }
+
+    const onClickThree = (event: React.MouseEvent<HTMLButtonElement>) => {
+        console.log("button three clicked! type of event: " + event.type);
+    }
+
     const searchedStories = stories.filter((story) =>
         story.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -110,6 +131,14 @@ const App = () => {
             <hr/>
 
             <List list={searchedStories}/>
+
+            <hr/>
+
+            {/*custom REUSABLE components examples*/}
+            <Button onClick={onClickOne} text={'button 1'}></Button> <br/>
+            <Button onClick={onClickTwo} text={'button 2'}></Button> <br/>
+            <Button onClick={onClickThree} text={'button 3'}></Button> <br/>
+
         </div>
     );
 };
