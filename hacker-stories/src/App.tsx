@@ -21,6 +21,53 @@ const useStorageState = (key: string, initialState: string) => {
     return [value, setValue] as const;
 }
 
+type ListProps = {
+    list: Story[];
+};
+
+const List = ({list}: ListProps) => (
+    <ul>
+        {list.map((item) => (
+            <Item key={item.objectID} item={item}/>
+        ))}
+    </ul>
+);
+
+type ItemProps = {
+    item: Story;
+};
+
+const Item = ({item}: ItemProps) => (
+    <li>
+    <span>
+      <a href={item.url}>{item.title}</a>
+    </span>
+        <span>{item.author}</span>
+        <span>{item.num_comments}</span>
+        <span>{item.points}</span>
+    </li>
+);
+
+type InputWithLabelProps = {
+    id: string
+    type?: string,
+    label: string,
+    value: string,
+    onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+};
+
+const InputWithLabel = ({id, type = 'text', label, value, onInputChange}: InputWithLabelProps) => (
+    <>
+        <label htmlFor={id}>{label}</label> &nbsp;
+        <input
+            id={id}
+            type={type}
+            value={value}
+            onChange={onInputChange}
+        />
+    </>
+);
+
 const App = () => {
     const stories = [
         {
@@ -55,7 +102,10 @@ const App = () => {
         <div>
             <h1>My Hacker Stories</h1>
 
-            <Search search={searchTerm} onSearch={handleSearch}/>
+            <InputWithLabel id="search"
+                            label="Search"
+                            value={searchTerm}
+                            onInputChange={handleSearch}/>
 
             <hr/>
 
@@ -63,49 +113,5 @@ const App = () => {
         </div>
     );
 };
-
-type SearchProps = {
-    search: string;
-    onSearch: (event: React.ChangeEvent<HTMLInputElement>) => void;
-};
-
-const Search = ({search, onSearch}: SearchProps) => (
-    <>
-        <label htmlFor="search">Search: {' '} </label>
-        <input
-            id="search"
-            type="text"
-            value={search}
-            onChange={onSearch}
-        />
-    </>
-);
-
-type ListProps = {
-    list: Story[];
-};
-
-const List = ({list}: ListProps) => (
-    <ul>
-        {list.map((item) => (
-            <Item key={item.objectID} item={item}/>
-        ))}
-    </ul>
-);
-
-type ItemProps = {
-    item: Story;
-};
-
-const Item = ({item}: ItemProps) => (
-    <li>
-    <span>
-      <a href={item.url}>{item.title}</a>
-    </span>
-        <span>{item.author}</span>
-        <span>{item.num_comments}</span>
-        <span>{item.points}</span>
-    </li>
-);
 
 export default App;
