@@ -95,6 +95,20 @@ const DrinkRadioButton = ({value, id, onChange}: DrinkRadioButtonProps) => (
     </label>
 )
 
+type CheckboxProps = {
+    text: string,
+    onClick: (event: React.MouseEvent<HTMLInputElement>) => void
+}
+
+const CheckboxWithText = ({text, onClick}: CheckboxProps) => (
+    <div>
+        <label>
+            <input type="checkbox" onClick={onClick}/>
+            {text}
+        </label>
+    </div>
+)
+
 const App = () => {
     const stories = [
         {
@@ -116,18 +130,22 @@ const App = () => {
     ];
 
     const [searchTerm, setSearchTerm] = useStorageState('search', 'React');
+    const [selectedDrink, setSelectedDrink] = React.useState('');
 
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
     };
 
-    // The selected drink
-    const [selectedDrink, setSelectedDrink] = React.useState('');
-
-    // This function will be triggered when a radio button is selected
     const handleRadioSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSelectedDrink(event.target.value);
     };
+
+    const handleCheckbox1Selection = (event: React.MouseEvent<HTMLInputElement>) => {
+        console.log("checkbox selection changes!");
+    }
+    const handleCheckbox2Selection = (event: React.MouseEvent<HTMLInputElement>) => {
+        console.log("checkbox selection changes also there!");
+    }
 
     const onClickOne = (event: React.MouseEvent<HTMLButtonElement>) => {
         console.log("button one clicked! type of event: " + event.type);
@@ -168,6 +186,9 @@ const App = () => {
             <DrinkRadioButton value={"Coffee"} id={"coffee"} onChange={handleRadioSelection}/>
             <DrinkRadioButton value={"Water"} id={"water"} onChange={handleRadioSelection}/>
             &nbsp;&nbsp;&nbsp; Selected drink: {selectedDrink}
+
+            <CheckboxWithText text={"some text"} onClick={handleCheckbox1Selection}/>
+            <CheckboxWithText text={"some text 2"} onClick={handleCheckbox2Selection}/>
 
         </div>
     );
