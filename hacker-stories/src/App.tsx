@@ -77,6 +77,24 @@ const Button = ({text, onClick}: ButtonProps) => (
     <button type="button" onClick={onClick}>{text}</button>
 );
 
+type DrinkRadioButtonProps = {
+    value: string,
+    id: string,
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+}
+
+const DrinkRadioButton = ({value, id, onChange}: DrinkRadioButtonProps) => (
+    <label>
+        <input
+            type="radio"
+            name="drink"
+            value={value}
+            id={id}
+            onChange={onChange}
+        /> {value}
+    </label>
+)
+
 const App = () => {
     const stories = [
         {
@@ -101,6 +119,14 @@ const App = () => {
 
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
+    };
+
+    // The selected drink
+    const [selectedDrink, setSelectedDrink] = React.useState('');
+
+    // This function will be triggered when a radio button is selected
+    const handleRadioSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSelectedDrink(event.target.value);
     };
 
     const onClickOne = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -135,9 +161,13 @@ const App = () => {
             <hr/>
 
             {/*custom REUSABLE components examples*/}
-            <Button onClick={onClickOne} text={'button 1'}></Button> <br/>
-            <Button onClick={onClickTwo} text={'button 2'}></Button> <br/>
-            <Button onClick={onClickThree} text={'button 3'}></Button> <br/>
+            <Button onClick={onClickOne} text={'button 1'}/> <br/>
+            <Button onClick={onClickTwo} text={'button 2'}/> <br/>
+            <Button onClick={onClickThree} text={'button 3'}/> <br/>
+
+            <DrinkRadioButton value={"Coffee"} id={"coffee"} onChange={handleRadioSelection}/>
+            <DrinkRadioButton value={"Water"} id={"water"} onChange={handleRadioSelection}/>
+            &nbsp;&nbsp;&nbsp; Selected drink: {selectedDrink}
 
         </div>
     );
