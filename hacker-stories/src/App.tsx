@@ -1,4 +1,6 @@
 import * as React from 'react';
+import {DragDropContext, Droppable, Draggable, DropResult} from 'react-beautiful-dnd';
+
 
 type Story = {
     objectID: number;
@@ -8,6 +10,97 @@ type Story = {
     num_comments: number;
     points: number;
 };
+
+type User = {
+    id: string,
+    firstName: string,
+    lastName: string
+}
+
+// type UserProps = {
+//     users: User[]
+//     onDragEnd: (result: DropResult) => void
+// }
+
+type DndItemProps = {
+    index: number,
+    item: User,
+    dragItemStyle?: React.CSSProperties
+}
+
+const DndItem = ({index, item, dragItemStyle}: DndItemProps) => (
+    <Draggable index={index} draggableId={item.id}>
+        {(provided, snapshot) => (
+            <div
+                ref={provided.innerRef}
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+                style={{
+                    // default item style
+                    padding: '8px 16px',
+                    // default drag style
+                    ...provided.draggableProps.style,
+                    // customized drag style
+                    ...(snapshot.isDragging ? dragItemStyle : {})
+                }}
+            >
+                {item.firstName} {item.lastName}
+            </div>
+        )}
+    </Draggable>
+)
+
+type DndListProps = {
+    list: User[],
+    onDragEnd: (result: DropResult) => void,
+    dragItemStyle?: React.CSSProperties
+}
+
+const DndList = ({list, onDragEnd, ...props}: DndListProps) => (
+    <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="droppable">
+            {(provided) => (
+                <div ref={provided.innerRef} {...provided.droppableProps}>
+                    {list.map((item, index) => (
+                        <DndItem
+                            key={item.id}
+                            index={index}
+                            item={item}
+                            {...props}
+                        />
+                    ))}
+                </div>
+            )}
+        </Droppable>
+    </DragDropContext>
+);
+
+// const UsersList = ({users, onDragEnd}: UserProps) => (
+//     <DragDropContext onDragEnd={onDragEnd}>
+//         <Droppable droppableId="droppable">
+//             {(provided) => (
+//                 <div ref={provided.innerRef} {...provided.droppableProps}>
+//                     {users.map((item, index) => (
+//                         <Draggable key={item.id}
+//                                    draggableId={item.id}
+//                                    index={index}>
+//                             {(provided) => (
+//                                 <div
+//                                     ref={provided.innerRef}
+//                                     {...provided.draggableProps}
+//                                     {...provided.dragHandleProps}
+//                                 >
+//                                     {item.firstName} {item.lastName}
+//                                 </div>
+//                             )}
+//                         </Draggable>
+//                     ))}
+//                     {provided.placeholder}
+//                 </div>
+//             )}
+//         </Droppable>
+//     </DragDropContext>
+// );
 
 const useStorageState = (key: string, initialState: string) => {
     const [value, setValue] = React.useState(
@@ -129,8 +222,45 @@ const App = () => {
         },
     ];
 
+    const users = [
+        {
+            id: '1',
+            firstName: 'Robin',
+            lastName: 'Wieruch',
+        },
+        {
+            id: '2',
+            firstName: 'Aiden',
+            lastName: 'Kettel',
+        },
+        {
+            id: '3',
+            firstName: 'Jannet',
+            lastName: 'Layn',
+        },
+    ];
+
     const [searchTerm, setSearchTerm] = useStorageState('search', 'React');
     const [selectedDrink, setSelectedDrink] = React.useState('');
+    const [usersList, setUsersList] = React.useState(users);
+
+    const reorder = (list: User[], startIndex: number, endIndex: number) => {
+        const result = Array.from(list);
+        const [removed] = result.splice(startIndex, 1);
+        result.splice(endIndex, 0, removed);
+
+        console.log("reorder: " + list.map(value => value.id));
+        return result;
+    };
+
+    const handleDragEnd = (result: DropResult,) => {
+        const {destination, source} = result;
+        if (!destination) return;
+        setUsersList(reorder(usersList, source.index, destination.index));
+        console.log(source.index);
+        console.log(destination.index);
+        console.log(usersList);
+    };
 
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
@@ -179,16 +309,33 @@ const App = () => {
             <hr/>
 
             {/*custom REUSABLE components examples*/}
+            <h4>buttons example:</h4>
             <Button onClick={onClickOne} text={'button 1'}/> <br/>
             <Button onClick={onClickTwo} text={'button 2'}/> <br/>
             <Button onClick={onClickThree} text={'button 3'}/> <br/>
 
+            <h4>radio buttons example:</h4>
             <DrinkRadioButton value={"Coffee"} id={"coffee"} onChange={handleRadioSelection}/>
             <DrinkRadioButton value={"Water"} id={"water"} onChange={handleRadioSelection}/>
             &nbsp;&nbsp;&nbsp; Selected drink: {selectedDrink}
 
+            <h4>checkbox example:</h4>
             <CheckboxWithText text={"some text"} onClick={handleCheckbox1Selection}/>
             <CheckboxWithText text={"some text 2"} onClick={handleCheckbox2Selection}/>
+
+            <h4>drag and drop list exampe:</h4>
+            <DndList
+                list={usersList}
+                onDragEnd={handleDragEnd}
+                dragItemStyle={{
+                    background: 'pink',
+                    borderRadius: '16px',
+                }}
+                // dragListStyle={{
+                //     background: 'lightblue',
+                //     borderRadius: '16px',
+                // }}
+            />
 
         </div>
     );
