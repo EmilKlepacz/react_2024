@@ -53,14 +53,21 @@ const DndItem = ({index, item, dragItemStyle}: DndItemProps) => (
 type DndListProps = {
     list: User[],
     onDragEnd: (result: DropResult) => void,
+    dragListStyle?: React.CSSProperties,
     dragItemStyle?: React.CSSProperties
 }
 
-const DndList = ({list, onDragEnd, ...props}: DndListProps) => (
+const DndList = ({list, onDragEnd, dragListStyle = {}, ...props}: DndListProps) => (
     <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="droppable">
-            {(provided) => (
-                <div ref={provided.innerRef} {...provided.droppableProps}>
+            {(provided, snapshot) => (
+                <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    style={{
+                        ...(snapshot.isDraggingOver ? dragListStyle : {}),
+                    }}
+                >
                     {list.map((item, index) => (
                         <DndItem
                             key={item.id}
@@ -69,6 +76,7 @@ const DndList = ({list, onDragEnd, ...props}: DndListProps) => (
                             {...props}
                         />
                     ))}
+                    {provided.placeholder}
                 </div>
             )}
         </Droppable>
@@ -331,10 +339,10 @@ const App = () => {
                     background: 'pink',
                     borderRadius: '16px',
                 }}
-                // dragListStyle={{
-                //     background: 'lightblue',
-                //     borderRadius: '16px',
-                // }}
+                dragListStyle={{
+                    background: 'lightblue',
+                    borderRadius: '16px',
+                }}
             />
 
         </div>
