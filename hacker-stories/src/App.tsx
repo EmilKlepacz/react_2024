@@ -152,14 +152,15 @@ const Item = ({item}: ItemProps) => (
 type InputWithLabelProps = {
     id: string
     type?: string,
-    label: string,
+    // label: string,
     value: string,
     onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+    children: React.ReactNode
 };
 
-const InputWithLabel = ({id, type = 'text', label, value, onInputChange}: InputWithLabelProps) => (
+const InputWithLabel = ({id, type = 'text', value, onInputChange, children}: InputWithLabelProps) => (
     <>
-        <label htmlFor={id}>{label}</label> &nbsp;
+        <label htmlFor={id}>{children}</label> &nbsp;
         <input
             id={id}
             type={type}
@@ -306,11 +307,12 @@ const App = () => {
             <h1>My Hacker Stories</h1>
 
             <InputWithLabel id="search"
-                            label="Search"
+                // label="Search"
                             value={searchTerm}
-                            onInputChange={handleSearch}/>
-
-            <hr/>
+                            onInputChange={handleSearch}
+            >
+                <strong>Search:</strong>
+            </InputWithLabel>
 
             <List list={searchedStories}/>
 
