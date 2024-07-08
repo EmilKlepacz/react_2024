@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {DragDropContext, Droppable, Draggable, DropResult} from 'react-beautiful-dnd';
+import html2canvas from "html2canvas";
 
 
 type Story = {
@@ -266,6 +267,7 @@ const App = () => {
     const [searchTerm, setSearchTerm] = useStorageState('search', 'React');
     const [selectedDrink, setSelectedDrink] = React.useState('');
     const [usersList, setUsersList] = React.useState(users);
+    const printRef = React.useRef<HTMLInputElement>(null);
 
     const reorder = (list: User[], startIndex: number, endIndex: number) => {
         const result = Array.from(list);
@@ -274,6 +276,29 @@ const App = () => {
 
         console.log("reorder: " + list.map(value => value.id));
         return result;
+    };
+
+    const handleDownloadImage = async () => {
+        if (printRef.current) {
+            const element = printRef.current;
+            const canvas = await html2canvas(element);
+
+            const data = canvas.toDataURL('image/jpeg'); // Corrected to 'jpeg'
+            const link = document.createElement('a');
+
+            if (typeof link.download === 'string') {
+                link.href = data;
+                link.download = 'image.jpg';
+
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                window.open(data);
+            }
+        } else {
+            console.error('printRef is not defined');
+        }
     };
 
     const handleDragEnd = (result: DropResult,) => {
@@ -361,6 +386,11 @@ const App = () => {
                     borderRadius: '16px',
                 }}
             />
+
+            <h4>Download As image example using refs in React and html2canvas lib</h4>
+            <button type="button" onClick={handleDownloadImage}>Download as Image</button>
+            <div>I will NOT be in the image</div>
+            <div ref={printRef}>I will be in the image</div>
 
         </div>
     );
