@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {DragDropContext, Droppable, Draggable, DropResult} from 'react-beautiful-dnd';
 import html2canvas from "html2canvas";
+import styled from 'styled-components';
 
 
 type Story = {
@@ -18,10 +19,22 @@ type User = {
     lastName: string
 }
 
-// type UserProps = {
-//     users: User[]
-//     onDragEnd: (result: DropResult) => void
-// }
+const StyledButton = styled.button`
+    cursor: pointer;
+    background: transparent;
+    font-size: 16px;
+    border-radius: 3px;
+    color: palevioletred;
+    border: 2px solid palevioletred;
+    margin: 0 1em;
+    padding: 0.25em 1em;
+    transition: 0.5s all ease-out;
+
+    &:hover {
+        background-color: palevioletred;
+        color: white;
+    }
+`;
 
 type DndItemProps = {
     index: number,
@@ -83,33 +96,6 @@ const DndList = ({list, onDragEnd, dragListStyle = {}, ...props}: DndListProps) 
         </Droppable>
     </DragDropContext>
 );
-
-// const UsersList = ({users, onDragEnd}: UserProps) => (
-//     <DragDropContext onDragEnd={onDragEnd}>
-//         <Droppable droppableId="droppable">
-//             {(provided) => (
-//                 <div ref={provided.innerRef} {...provided.droppableProps}>
-//                     {users.map((item, index) => (
-//                         <Draggable key={item.id}
-//                                    draggableId={item.id}
-//                                    index={index}>
-//                             {(provided) => (
-//                                 <div
-//                                     ref={provided.innerRef}
-//                                     {...provided.draggableProps}
-//                                     {...provided.dragHandleProps}
-//                                 >
-//                                     {item.firstName} {item.lastName}
-//                                 </div>
-//                             )}
-//                         </Draggable>
-//                     ))}
-//                     {provided.placeholder}
-//                 </div>
-//             )}
-//         </Droppable>
-//     </DragDropContext>
-// );
 
 const useStorageState = (key: string, initialState: string) => {
     const [value, setValue] = React.useState(
@@ -391,6 +377,11 @@ const App = () => {
             <button type="button" onClick={handleDownloadImage}>Download as Image</button>
             <div>I will NOT be in the image</div>
             <div ref={printRef}>I will be in the image</div>
+
+            <h4>Styled components using styled-components example</h4>
+            <div>
+                <StyledButton>example</StyledButton>
+            </div>
 
         </div>
     );
