@@ -185,6 +185,7 @@ const useStorageState = (key: string, initialState: string) => {
 
 type ListProps = {
     list: Story[];
+
 };
 
 const List = ({list}: ListProps) => (
