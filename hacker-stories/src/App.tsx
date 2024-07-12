@@ -184,32 +184,46 @@ const useStorageState = (key: string, initialState: string) => {
 }
 
 type ListProps = {
-    list: Story[];
-
+    list: Story[],
+    onRemoveItem: (item: Story) => void
 };
 
-const List = ({list}: ListProps) => (
+const List = ({list, onRemoveItem}: ListProps) => (
     <ul>
         {list.map((item) => (
-            <Item key={item.objectID} item={item}/>
+            <Item
+                key={item.objectID}
+                item={item}
+                onRemoveItem={onRemoveItem}
+            />
         ))}
     </ul>
 );
 
 type ItemProps = {
-    item: Story;
+    item: Story,
+    onRemoveItem: (item: Story) => void
 };
 
-const Item = ({item}: ItemProps) => (
-    <li>
-    <span>
-      <a href={item.url}>{item.title}</a>
-    </span>
-        <span>{item.author}</span>
-        <span>{item.num_comments}</span>
-        <span>{item.points}</span>
-    </li>
-);
+
+const Item = ({item, onRemoveItem}: ItemProps) => {
+    const handleRemoveItem = () => {
+        console.log('Removing item: ' + item.title)
+        onRemoveItem(item);
+    };
+
+    return (
+        <li>
+            <span><a href={item.url}>{item.title}</a></span>
+            <span>{item.author}</span>
+            <span>{item.num_comments}</span>
+            <span>{item.points}</span>
+            <span>
+                <button type="button" onClick={handleRemoveItem}>Remove item</button>
+            </span>
+        </li>
+    );
+};
 
 type InputWithLabelProps = {
     id: string
@@ -287,26 +301,26 @@ const CheckboxWithText = ({text, onClick}: CheckboxProps) => (
     </div>
 )
 
-const App = () => {
-    const stories = [
-        {
-            title: 'React',
-            url: 'https://reactjs.org/',
-            author: 'Jordan Walke',
-            num_comments: 3,
-            points: 4,
-            objectID: 0,
-        },
-        {
-            title: 'Redux',
-            url: 'https://redux.js.org/',
-            author: 'Dan Abramov, Andrew Clark',
-            num_comments: 2,
-            points: 5,
-            objectID: 1,
-        },
-    ];
+const initialStories = [
+    {
+        title: 'React',
+        url: 'https://reactjs.org/',
+        author: 'Jordan Walke',
+        num_comments: 3,
+        points: 4,
+        objectID: 0,
+    },
+    {
+        title: 'Redux',
+        url: 'https://redux.js.org/',
+        author: 'Dan Abramov, Andrew Clark',
+        num_comments: 2,
+        points: 5,
+        objectID: 1,
+    },
+];
 
+const App = () => {
     const users = [
         {
             id: '1',
@@ -326,9 +340,19 @@ const App = () => {
     ];
 
     const [searchTerm, setSearchTerm] = useStorageState('search', 'React');
+    const [stories, setStories] = React.useState<Story[]>(initialStories);
+
     const [selectedDrink, setSelectedDrink] = React.useState('');
     const [usersList, setUsersList] = React.useState(users);
+
     const printRef = React.useRef<HTMLInputElement>(null);
+
+    const handleRemoveStory = (item: Story) => {
+        const newStories = stories.filter(
+            (story) => item.objectID !== story.objectID
+        );
+        setStories(newStories);
+    }
 
     const reorder = (list: User[], startIndex: number, endIndex: number) => {
         const result = Array.from(list);
@@ -421,7 +445,7 @@ const App = () => {
                 <strong>Search:</strong>
             </InputWithLabel>
 
-            <List list={searchedStories}/>
+            <List list={searchedStories} onRemoveItem={handleRemoveStory}/>
 
             <hr/>
 
