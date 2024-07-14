@@ -207,19 +207,14 @@ type ItemProps = {
 
 
 const Item = ({item, onRemoveItem}: ItemProps) => {
-    const handleRemoveItem = () => {
-        console.log('Removing item: ' + item.title)
-        onRemoveItem(item);
-    };
-
     return (
         <li>
             <span><a href={item.url}>{item.title}</a></span>
-            <span>{item.author}</span>
-            <span>{item.num_comments}</span>
-            <span>{item.points}</span>
+            <span> {item.author} </span>
+            <span> {item.num_comments} </span>
+            <span> {item.points} </span>
             <span>
-                <button type="button" onClick={handleRemoveItem}>Remove item</button>
+                <button type="button" onClick={() => onRemoveItem(item)}>Remove item</button>
             </span>
         </li>
     );
@@ -345,6 +340,8 @@ const App = () => {
     const [selectedDrink, setSelectedDrink] = React.useState('');
     const [usersList, setUsersList] = React.useState(users);
 
+    const [dummyIdSeq, setDummyIdSeq] = React.useState<number>(100);
+
     const printRef = React.useRef<HTMLInputElement>(null);
 
     const handleRemoveStory = (item: Story) => {
@@ -352,6 +349,23 @@ const App = () => {
             (story) => item.objectID !== story.objectID
         );
         setStories(newStories);
+    }
+
+    const addDummyStory = () => {
+        const nextDummySeqId = dummyIdSeq + 1;
+        setDummyIdSeq(nextDummySeqId);
+
+        const dummyStory = {
+            title: 'Dummy',
+            url: 'https://dummy.org/',
+            author: 'Dummy Author',
+            num_comments: 99,
+            points: 99,
+            objectID: nextDummySeqId
+        }
+
+        stories.push(dummyStory);
+        setStories(stories);
     }
 
     const reorder = (list: User[], startIndex: number, endIndex: number) => {
@@ -446,7 +460,9 @@ const App = () => {
             </InputWithLabel>
 
             <List list={searchedStories} onRemoveItem={handleRemoveStory}/>
-
+            <span>
+                <button type="button" onClick={addDummyStory}>Add dummy item</button>
+            </span>
             <hr/>
 
             {/*custom REUSABLE components examples*/}
