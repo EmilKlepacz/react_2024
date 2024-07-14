@@ -80,6 +80,7 @@ const Slider = () => {
         }
 
         if (newX > end) {
+
             newX = end;
         }
 
@@ -315,6 +316,13 @@ const initialStories = [
     },
 ];
 
+const getAsyncStories = () =>
+    new Promise((resolve) =>
+        setTimeout(
+            () => resolve({data: {stories: initialStories}}),
+            2000
+        )
+    );
 const App = () => {
     const users = [
         {
@@ -335,7 +343,7 @@ const App = () => {
     ];
 
     const [searchTerm, setSearchTerm] = useStorageState('search', 'React');
-    const [stories, setStories] = React.useState<Story[]>(initialStories);
+    const [stories, setStories] = React.useState<Story[]>([]);
 
     const [selectedDrink, setSelectedDrink] = React.useState('');
     const [usersList, setUsersList] = React.useState(users);
@@ -343,6 +351,12 @@ const App = () => {
     const [dummyIdSeq, setDummyIdSeq] = React.useState<number>(100);
 
     const printRef = React.useRef<HTMLInputElement>(null);
+
+    React.useEffect(() => {
+        getAsyncStories().then((result) => {
+            setStories(result.data.stories);
+        });
+    }, []);
 
     const handleRemoveStory = (item: Story) => {
         const newStories = stories.filter(
@@ -418,10 +432,10 @@ const App = () => {
     };
 
     const handleCheckbox1Selection = (event: React.MouseEvent<HTMLInputElement>) => {
-        console.log("checkbox selection changes!");
+        console.log(event.type + ": checkbox selection changes!");
     }
     const handleCheckbox2Selection = (event: React.MouseEvent<HTMLInputElement>) => {
-        console.log("checkbox selection changes also there!");
+        console.log(event.type + ":checkbox selection changes also there!");
     }
 
     const onClickOne = (event: React.MouseEvent<HTMLButtonElement>) => {
