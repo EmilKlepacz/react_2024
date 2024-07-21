@@ -344,8 +344,11 @@ const App = () => {
 
     const [searchTerm, setSearchTerm] = useStorageState('search', 'React');
     const [stories, setStories] = React.useState<Story[]>([]);
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [isError, setIsError] = React.useState(false);
 
     const [selectedDrink, setSelectedDrink] = React.useState('');
+
     const [usersList, setUsersList] = React.useState(users);
 
     const [dummyIdSeq, setDummyIdSeq] = React.useState<number>(100);
@@ -353,9 +356,14 @@ const App = () => {
     const printRef = React.useRef<HTMLInputElement>(null);
 
     React.useEffect(() => {
-        getAsyncStories().then((result) => {
-            setStories(result.data.stories);
-        });
+        setIsLoading(true);
+
+        getAsyncStories()
+            .then((result) => {
+                setStories(result.data.stories);
+                setIsLoading(false);
+            })
+            .catch(() => setIsError(true));
     }, []);
 
     const handleRemoveStory = (item: Story) => {
@@ -473,11 +481,19 @@ const App = () => {
                 <strong>Search:</strong>
             </InputWithLabel>
 
+            {isError && <p>Something went wrong...</p>}
+            {isLoading ? (
+                <p>is Loading...</p>
+            ) : (
+                <List list={searchedStories} onRemoveItem={handleRemoveStory}/>
+            )}
+
             <List list={searchedStories} onRemoveItem={handleRemoveStory}/>
             <span>
                 <button type="button" onClick={addDummyStory}>Add dummy item</button>
             </span>
             <hr/>
+
 
             {/*custom REUSABLE components examples*/}
             <h4>buttons example:</h4>
