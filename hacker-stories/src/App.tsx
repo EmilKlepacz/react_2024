@@ -323,6 +323,44 @@ const getAsyncStories = () =>
             2000
         )
     );
+
+type StoriesState = Story[];
+
+type StoriesSetAction = {
+    type: 'SET_STORIES';
+    payload: Story[];
+};
+
+type StoriesRemoveAction = {
+    type: 'REMOVE_STORY';
+    payload: Story;
+};
+
+type StoriesAddAction = {
+    type: 'ADD_STORY';
+    payload: Story;
+};
+
+type StoriesAction = StoriesSetAction | StoriesRemoveAction | StoriesAddAction;
+
+const storiesReducer = (
+    state: StoriesState,
+    action: StoriesAction
+) => {
+    switch (action.type) {
+        case 'SET_STORIES':
+            return action.payload;
+        case 'REMOVE_STORY':
+            return state.filter(
+                (story: Story) => action.payload.objectID !== story.objectID
+            );
+        case 'ADD_STORY':
+            return [...state, action.payload];
+        default:
+            throw new Error();
+    }
+};
+
 const App = () => {
     const users = [
         {
@@ -343,9 +381,14 @@ const App = () => {
     ];
 
     const [searchTerm, setSearchTerm] = useStorageState('search', 'React');
-    const [stories, setStories] = React.useState<Story[]>([]);
+    //const [stories, setStories] = React.useState<Story[]>([]);
     const [isLoading, setIsLoading] = React.useState(false);
     const [isError, setIsError] = React.useState(false);
+
+    const [stories, dispatchStories] = React.useReducer(
+        storiesReducer,
+        []
+    );
 
     const [selectedDrink, setSelectedDrink] = React.useState('');
 
@@ -360,17 +403,23 @@ const App = () => {
 
         getAsyncStories()
             .then((result) => {
-                setStories(result.data.stories);
+                dispatchStories({
+                    type: 'SET_STORIES',
+                    payload: result.data.stories,
+                });
                 setIsLoading(false);
             })
             .catch(() => setIsError(true));
     }, []);
 
     const handleRemoveStory = (item: Story) => {
-        const newStories = stories.filter(
-            (story) => item.objectID !== story.objectID
-        );
-        setStories(newStories);
+        // const newStories = stories.filter(
+        //     (story) => item.objectID !== story.objectID
+        // );
+        dispatchStories({
+            type: 'REMOVE_STORY',
+            payload: item,
+        });
     }
 
     const addDummyStory = () => {
@@ -386,8 +435,10 @@ const App = () => {
             objectID: nextDummySeqId
         }
 
-        stories.push(dummyStory);
-        setStories(stories);
+        dispatchStories({
+            type: 'ADD_STORY',
+            payload: dummyStory
+        });
     }
 
     const reorder = (list: User[], startIndex: number, endIndex: number) => {
@@ -488,7 +539,6 @@ const App = () => {
                 <List list={searchedStories} onRemoveItem={handleRemoveStory}/>
             )}
 
-            <List list={searchedStories} onRemoveItem={handleRemoveStory}/>
             <span>
                 <button type="button" onClick={addDummyStory}>Add dummy item</button>
             </span>
