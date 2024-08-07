@@ -297,25 +297,6 @@ const CheckboxWithText = ({text, onClick}: CheckboxProps) => (
     </div>
 )
 
-const initialStories = [
-    {
-        title: 'React',
-        url: 'https://reactjs.org/',
-        author: 'Jordan Walke',
-        num_comments: 3,
-        points: 4,
-        objectID: 0,
-    },
-    {
-        title: 'Redux',
-        url: 'https://redux.js.org/',
-        author: 'Dan Abramov, Andrew Clark',
-        num_comments: 2,
-        points: 5,
-        objectID: 1,
-    },
-];
-
 type StoriesState = {
     data: Story[];
     isLoading: boolean;
@@ -430,9 +411,15 @@ const App = () => {
     const printRef = React.useRef<HTMLInputElement>(null);
 
     React.useEffect(() => {
+        // if `searchTerm` is not present
+        // e.g. null, empty string, undefined
+        // do nothing
+        // more generalized condition than searchTerm === ''
+        if (!searchTerm) return;
+
         dispatchStories({type: 'STORIES_FETCH_INIT'});
 
-        fetch(`${API_ENDPOINT}react`)
+        fetch(`${API_ENDPOINT}${searchTerm}`)
             .then((response) => response.json())
             .then((result) => {
                 dispatchStories({
@@ -443,7 +430,7 @@ const App = () => {
             .catch(() =>
                 dispatchStories({type: 'STORIES_FETCH_FAILURE'})
             );
-    }, []);
+    }, [searchTerm]);
 
     const handleRemoveStory = (item: Story) => {
         dispatchStories({
@@ -539,10 +526,6 @@ const App = () => {
         console.log("button three clicked! type of event: " + event.type);
     }
 
-    const searchedStories = stories.data.filter((story) =>
-        story.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
     return (
         <div>
             <h1>My Hacker Stories</h1>
@@ -567,7 +550,7 @@ const App = () => {
             {stories.isLoading ? (
                 <p>is Loading...</p>
             ) : (
-                <List list={searchedStories} onRemoveItem={handleRemoveStory}/>
+                <List list={stories.data} onRemoveItem={handleRemoveStory}/>
             )}
 
             <span>
