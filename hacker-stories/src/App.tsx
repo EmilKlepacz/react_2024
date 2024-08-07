@@ -410,7 +410,7 @@ const App = () => {
 
     const printRef = React.useRef<HTMLInputElement>(null);
 
-    React.useEffect(() => {
+    const handleFetchStories = React.useCallback(() => {
         // if `searchTerm` is not present
         // e.g. null, empty string, undefined
         // do nothing
@@ -431,6 +431,10 @@ const App = () => {
                 dispatchStories({type: 'STORIES_FETCH_FAILURE'})
             );
     }, [searchTerm]);
+
+    React.useEffect(() => {
+        handleFetchStories();
+    }, [handleFetchStories]);
 
     const handleRemoveStory = (item: Story) => {
         dispatchStories({
