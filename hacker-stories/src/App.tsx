@@ -208,7 +208,6 @@ const useStorageState = (key: string, initialState: string) => {
         if (!isMounted.current) {
             isMounted.current = true;
         } else {
-            console.log("A")
             localStorage.setItem(key, value);
         }
     }, [value, key]);
@@ -221,7 +220,7 @@ type ListProps = {
     onRemoveItem: (item: Story) => void
 };
 
-const List = ({list, onRemoveItem}: ListProps) => (
+const List = React.memo(({list, onRemoveItem}: ListProps) => console.log("List!") || (
     <ul>
         {list.map((item) => (
             <Item
@@ -231,7 +230,7 @@ const List = ({list, onRemoveItem}: ListProps) => (
             />
         ))}
     </ul>
-);
+));
 
 type ItemProps = {
     item: Story,
@@ -464,12 +463,12 @@ const App = () => {
         handleFetchStories();
     }, [handleFetchStories]);
 
-    const handleRemoveStory = (item: Story) => {
+    const handleRemoveStory = React.useCallback((item: Story) => {
         dispatchStories({
             type: 'REMOVE_STORY',
             payload: item,
         });
-    }
+    }, []);
 
     const addDummyStory = () => {
         const nextDummySeqId = dummyIdSeq + 1;
@@ -563,6 +562,9 @@ const App = () => {
     const onClickThree = (event: React.MouseEvent<HTMLButtonElement>) => {
         console.log("button three clicked! type of event: " + event.type);
     }
+
+
+    console.log('App!!');
 
     return (
         <div>
