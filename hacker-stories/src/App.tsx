@@ -563,8 +563,15 @@ const App = () => {
         console.log("button three clicked! type of event: " + event.type);
     }
 
+    const getSumComments = (stories: Story[]) => {
+        console.log("comments");
+        return stories.reduce((result, value) => result + value.num_comments || 0, 0)
+    }
 
-    console.log('App!!');
+    const sumComments = React.useMemo(
+        () => getSumComments(stories.data),
+        [stories]
+    );
 
     return (
         <div>
@@ -582,6 +589,8 @@ const App = () => {
                 onSearchSubmit={handleSearchSubmit}
             />
 
+            &nbsp;&nbsp;&nbsp;
+            <div>Sum of comments: {sumComments}</div>
 
             {stories.isError && <p>Something went wrong ...</p>}
 
