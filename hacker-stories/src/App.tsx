@@ -2,7 +2,7 @@ import * as React from 'react';
 import {DragDropContext, Droppable, Draggable, DropResult} from 'react-beautiful-dnd';
 import html2canvas from "html2canvas";
 import styled from 'styled-components';
-import {useState} from "react";
+import {ChangeEvent, useState} from "react";
 import axios from "axios";
 
 type Story = {
@@ -172,6 +172,30 @@ const DndList = ({list, onDragEnd, dragListStyle = {}, ...props}: DndListProps) 
         </Droppable>
     </DragDropContext>
 );
+
+type SearchFormProps = {
+    searchTerm: string,
+    onSearchInput: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onSearchSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+}
+
+const SearchForm = ({searchTerm, onSearchInput, onSearchSubmit}: SearchFormProps) => (
+    <form onSubmit={onSearchSubmit}>
+        <InputWithLabel id="search"
+                        value={searchTerm}
+                        isFocused={true}
+                        onInputChange={onSearchInput}
+        >
+            <strong>Search:</strong>
+        </InputWithLabel>
+
+        &nbsp;&nbsp;&nbsp;
+
+        <button type="submit" disabled={!searchTerm}>
+            Submit
+        </button>
+    </form>
+)
 
 const useStorageState = (key: string, initialState: string) => {
     const [value, setValue] = React.useState(
@@ -504,8 +528,10 @@ const App = () => {
         setSearchTerm(event.target.value);
     };
 
-    const handleSearchSubmit = () => {
+    const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         setUrl(`${API_ENDPOINT}${searchTerm}`)
+
+        event.preventDefault();
     }
 
     const handleRadioSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -541,23 +567,12 @@ const App = () => {
             </div>
             <br/><br/>
 
-            <InputWithLabel id="search"
-                            value={searchTerm}
-                            isFocused={true}
-                            onInputChange={handleSearchInput}
-            >
-                <strong>Search:</strong>
-            </InputWithLabel>
+            <SearchForm
+             searchTerm={searchTerm}
+             onSearchInput={handleSearchInput}
+             onSearchSubmit={handleSearchSubmit}
+            />
 
-            &nbsp;&nbsp;&nbsp;
-
-            <button
-                type="button"
-                disabled={!searchTerm}
-                onClick={handleSearchSubmit}
-            >
-                Submit
-            </button>
 
             {stories.isError && <p>Something went wrong ...</p>}
 
