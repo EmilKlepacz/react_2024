@@ -179,7 +179,11 @@ type SearchFormProps = {
     onSearchSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 }
 
-const SearchForm = ({searchTerm, onSearchInput, onSearchSubmit}: SearchFormProps) => (
+const SearchForm = React.memo(({
+                                   searchTerm,
+                                   onSearchInput,
+                                   onSearchSubmit
+                               }: SearchFormProps) => console.log("search form") || (
     <form onSubmit={onSearchSubmit}>
         <InputWithLabel id="search"
                         value={searchTerm}
@@ -195,7 +199,7 @@ const SearchForm = ({searchTerm, onSearchInput, onSearchSubmit}: SearchFormProps
             Submit
         </button>
     </form>
-)
+))
 
 const useStorageState = (key: string, initialState: string) => {
     const isMounted = React.useRef(false);
@@ -220,7 +224,7 @@ type ListProps = {
     onRemoveItem: (item: Story) => void
 };
 
-const List = React.memo(({list, onRemoveItem}: ListProps) => console.log("List!") || (
+const List = React.memo(({list, onRemoveItem}: ListProps) => (
     <ul>
         {list.map((item) => (
             <Item
@@ -530,15 +534,15 @@ const App = () => {
         console.log(usersList);
     };
 
-    const handleSearchInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleSearchInput = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
-    };
+    }, [setSearchTerm]);
 
-    const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSearchSubmit = React.useCallback((event: React.FormEvent<HTMLFormElement>) => {
         setUrl(`${API_ENDPOINT}${searchTerm}`)
 
         event.preventDefault();
-    }
+    }, [searchTerm])
 
     const handleRadioSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSelectedDrink(event.target.value);
@@ -564,7 +568,6 @@ const App = () => {
     }
 
     const getSumComments = (stories: Story[]) => {
-        console.log("comments");
         return stories.reduce((result, value) => result + value.num_comments || 0, 0)
     }
 
