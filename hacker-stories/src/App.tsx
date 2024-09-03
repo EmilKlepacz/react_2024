@@ -2,8 +2,28 @@ import * as React from 'react';
 import {DragDropContext, Droppable, Draggable, DropResult} from 'react-beautiful-dnd';
 import html2canvas from "html2canvas";
 import styled from 'styled-components';
-import {ChangeEvent, useState} from "react";
+import {useState} from "react";
 import axios from "axios";
+
+export {
+    reorder,
+    storiesReducer,
+    SearchForm,
+    InputWithLabel,
+    List,
+    Item
+};
+
+export type {
+    Story,
+    StoriesState,
+    StoriesAddAction,
+    StoriesRemoveAction,
+    StoriesFetchFailureAction,
+    StoriesFetchSuccessAction,
+    StoriesFetchInitAction,
+    User
+};
 
 type Story = {
     objectID: number;
@@ -358,6 +378,15 @@ type StoriesAction =
     StoriesRemoveAction |
     StoriesAddAction
 
+const reorder = (list: User[], startIndex: number, endIndex: number) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+
+    console.log("reorder: " + list.map(value => value.id));
+    return result;
+};
+
 const storiesReducer = (
     state: StoriesState,
     action: StoriesAction
@@ -483,15 +512,6 @@ const App = () => {
         });
     }
 
-    const reorder = (list: User[], startIndex: number, endIndex: number) => {
-        const result = Array.from(list);
-        const [removed] = result.splice(startIndex, 1);
-        result.splice(endIndex, 0, removed);
-
-        console.log("reorder: " + list.map(value => value.id));
-        return result;
-    };
-
     const handleDownloadImage = async () => {
         if (printRef.current) {
             const element = printRef.current;
@@ -568,9 +588,9 @@ const App = () => {
             <br/><br/>
 
             <SearchForm
-             searchTerm={searchTerm}
-             onSearchInput={handleSearchInput}
-             onSearchSubmit={handleSearchSubmit}
+                searchTerm={searchTerm}
+                onSearchInput={handleSearchInput}
+                onSearchSubmit={handleSearchSubmit}
             />
 
 
