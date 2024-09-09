@@ -383,7 +383,6 @@ const reorder = (list: User[], startIndex: number, endIndex: number) => {
     const [removed] = result.splice(startIndex, 1);
     result.splice(endIndex, 0, removed);
 
-    console.log("reorder: " + list.map(value => value.id));
     return result;
 };
 
@@ -592,7 +591,6 @@ const App = () => {
                 onSearchInput={handleSearchInput}
                 onSearchSubmit={handleSearchSubmit}
             />
-
 
             {stories.isError && <p>Something went wrong ...</p>}
 
