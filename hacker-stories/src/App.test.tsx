@@ -1,9 +1,10 @@
 import {describe, it, expect, vi} from 'vitest';
+import axios from 'axios';
 import {
     render,
     screen,
     fireEvent,
-    waitFor,
+    waitFor, waitForElementToBeRemoved,
 } from '@testing-library/react';
 
 import App, {
@@ -242,5 +243,170 @@ describe('SearchForm', () => {
         fireEvent.submit(screen.getByRole('button'));
 
         expect(searchFormProps.onSearchSubmit).toHaveBeenCalledTimes(1);
+    });
+});
+
+/* integration tests */
+
+// Mock axios
+vi.mock('axios');
+
+// Cast axios.get to a mock function
+const mockedAxios = axios as unknown as { get: vi.Mock };
+
+describe('App', () => {
+    it('succeeds fetching data', async () => {
+        const promise = Promise.resolve({
+            data: {
+                hits: stories,
+            },
+        });
+
+        mockedAxios.get.mockImplementationOnce(() => promise);
+
+        render(<App/>);
+
+        expect(screen.queryByText(/Loading/)).toBeInTheDocument();
+
+        await waitFor(async () => await promise);
+
+        screen.debug;
+
+        expect(screen.queryByText(/Loading/)).toBeNull();
+
+        expect(screen.getByText('React')).toBeInTheDocument();
+        expect(screen.getByText('Redux')).toBeInTheDocument();
+        expect(screen.getAllByText('Remove item').length).toBe(2);
+    });
+
+    it('fails fetching data', async () => {
+        const promise = Promise.reject();
+
+        mockedAxios.get.mockImplementationOnce(() => promise);
+
+        render(<App/>);
+
+        expect(screen.getByText(/Loading/)).toBeInTheDocument();
+
+        try {
+            await waitFor(async () => await promise);
+        } catch (error) {
+            expect(screen.queryByText(/Loading/)).toBeNull();
+            expect(screen.queryByText(/went wrong/)).toBeInTheDocument();
+        }
+    });
+
+    it('removes a story', async () => {
+        const promise = Promise.resolve({
+            data: {
+                hits: stories
+            }
+        })
+
+        mockedAxios.get.mockImplementationOnce(() => promise);
+
+        render(<App/>);
+
+        await waitFor(async () => await promise);
+
+        expect(screen.getAllByText('Remove item').length).toBe(2);
+        expect(screen.getByText('Jordan Walke')).toBeInTheDocument();
+
+        fireEvent.click(screen.getAllByText('Remove item')[0]);
+
+        expect(screen.getAllByText('Remove item').length).toBe(1);
+        expect(screen.queryByText('Jordan Walke')).toBeNull();
+    });
+
+    it('searches for specific stories', async () => {
+        const reactPromise = Promise.resolve({
+            data: {
+                hits: stories
+            }
+        });
+
+        const anotherStory = {
+            title: 'JavaScript',
+            url: 'https://en.wikipedia.org/wiki/JavaScript',
+            author: 'Brendan Eich',
+            num_comments: 15,
+            points: 10,
+            objectID: 3,
+        }
+
+        const javascriptPromise = Promise.resolve({
+            data: {
+                hits: [anotherStory]
+            }
+        });
+
+        mockedAxios.get.mockImplementation((url) => {
+            if (url.includes('React')) {
+                return reactPromise;
+            }
+
+            if (url.includes('JavaScript')) {
+                return javascriptPromise;
+            }
+
+            throw Error();
+        });
+
+        //Initial Render
+        render(<App/>);
+
+        //First Data Fetching
+        await waitFor(async () => await reactPromise);
+
+        expect(screen.queryByDisplayValue('React')).toBeInTheDocument();
+        expect(screen.queryByDisplayValue('JavaScript')).toBeNull();
+        expect(screen.queryByText('Jordan Walke')).toBeInTheDocument();
+        expect(screen.queryByText('Dan Abramov, Andrew Clark')).toBeInTheDocument();
+        expect(screen.queryByText('Brendan Eich')).toBeNull();
+
+        //User interaction
+        fireEvent.change(screen.queryByDisplayValue('React'), {
+           target: {
+               value: 'JavaScript'
+           }
+        });
+
+        expect(screen.queryByDisplayValue('React')).toBeNull();
+        expect(screen.queryByDisplayValue('JavaScript')).toBeInTheDocument();
+
+        fireEvent.submit(screen.queryByText('Submit'));
+
+        //Second Data Fetching
+        await waitFor(async () => await javascriptPromise);
+
+        expect(screen.queryByText('Jordan Walke')).toBeNull();
+        expect(screen.queryByText('Dan Abramov, Andrew Clark')).toBeNull();
+        expect(screen.queryByText('Brendan Eich')).toBeInTheDocument();
+    });
+
+    it('adds dummy item', async () => {
+        const promise = Promise.resolve({
+            data: {
+                hits: stories
+            }
+        })
+
+        mockedAxios.get.mockImplementationOnce(() => promise);
+
+        render(<App/>);
+
+        await waitFor(async () => await promise);
+
+        expect(screen.getAllByText('Remove item').length).toBe(2);
+        expect(screen.getByText('Jordan Walke')).toBeInTheDocument();
+        expect(screen.getByText('Dan Abramov, Andrew Clark')).toBeInTheDocument();
+
+        fireEvent.click(screen.queryByText('Add dummy item'));
+
+        expect(screen.getAllByText('Remove item').length).toBe(3);
+        expect(screen.getByText('Jordan Walke')).toBeInTheDocument();
+        expect(screen.getByText('Dan Abramov, Andrew Clark')).toBeInTheDocument();
+        expect(screen.getByText('Dummy Author')).toBeInTheDocument();
+
     });
 });
