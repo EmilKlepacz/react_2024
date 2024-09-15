@@ -1,17 +1,20 @@
 import * as React from 'react';
-import {DragDropContext, Droppable, Draggable, DropResult} from 'react-beautiful-dnd';
 import html2canvas from "html2canvas";
-import styled from 'styled-components';
 import {useState} from "react";
 import axios from "axios";
+import {List} from "./List.tsx";
+import {SearchForm} from "./SearchForm.tsx";
+import {DropResult} from "react-beautiful-dnd";
+import {DndList} from "./DndList.tsx";
+import {Slider} from "./Slider.tsx";
+import {Button} from "./Button.tsx";
+import {StyledButton} from "./StyledButton.tsx";
+import {DrinkRadioButton} from "./DrinkRadioButton.tsx";
+import {CheckboxWithText} from "./CheckboxWithText.tsx";
 
 export {
     reorder,
-    storiesReducer,
-    SearchForm,
-    InputWithLabel,
-    List,
-    Item
+    storiesReducer
 };
 
 export type {
@@ -40,183 +43,6 @@ type User = {
     lastName: string
 }
 
-const StyledButton = styled.button`
-    cursor: pointer;
-    background: transparent;
-    font-size: 16px;
-    border-radius: 3px;
-    color: palevioletred;
-    border: 2px solid palevioletred;
-    margin: 0 1em;
-    padding: 0.25em 1em;
-    transition: 0.5s all ease-out;
-
-    &:hover {
-        background-color: palevioletred;
-        color: white;
-    }
-`;
-
-const StyledSlider = styled.div`
-    position: relative;
-    border-radius: 3px;
-    background: #dddddd;
-    height: 15px;
-`;
-
-const StyledThumb = styled.div`
-    width: 10px;
-    height: 25px;
-    border-radius: 3px;
-    position: relative;
-    top: -5px;
-    opacity: 0.5;
-    background: #823eb7;
-    cursor: pointer;
-`;
-
-
-const getPercentage = (current: number, max: number) => (100 * current) / max;
-
-const getLeft = (percentage: number) => `calc(${percentage}% - 5px)`;
-
-const Slider = () => {
-    const sliderRef = React.useRef<HTMLDivElement>(null);
-    const thumbRef = React.useRef<HTMLDivElement>(null);
-
-    const diff = React.useRef<HTMLDivElement>(null);
-
-    const handleMouseMove = (event: MouseEvent) => {
-        let newX =
-            event.clientX -
-            diff.current -
-            sliderRef.current.getBoundingClientRect().left;
-
-        const end = sliderRef.current.offsetWidth - thumbRef.current.offsetWidth;
-
-        const start = 0;
-
-        if (newX < start) {
-            newX = 0;
-        }
-
-        if (newX > end) {
-
-            newX = end;
-        }
-
-        const newPercentage = getPercentage(newX, end);
-
-        thumbRef.current.style.left = getLeft(newPercentage);
-    };
-
-    const handleMouseUp = () => {
-        document.removeEventListener('mouseup', handleMouseUp);
-        document.removeEventListener('mousemove', handleMouseMove);
-    };
-
-    const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
-        diff.current =
-            event.clientX - thumbRef.current.getBoundingClientRect().left;
-
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
-    };
-
-    return (
-        <>
-            <StyledSlider ref={sliderRef}>
-                <StyledThumb ref={thumbRef} onMouseDown={handleMouseDown}/>
-            </StyledSlider>
-        </>
-    );
-};
-
-type DndItemProps = {
-    index: number,
-    item: User,
-    dragItemStyle?: React.CSSProperties
-}
-
-const DndItem = ({index, item, dragItemStyle}: DndItemProps) => (
-    <Draggable index={index} draggableId={item.id}>
-        {(provided, snapshot) => (
-            <div
-                ref={provided.innerRef}
-                {...provided.draggableProps}
-                {...provided.dragHandleProps}
-                style={{
-                    // default item style
-                    padding: '8px 16px',
-                    // default drag style
-                    ...provided.draggableProps.style,
-                    // customized drag style
-                    ...(snapshot.isDragging ? dragItemStyle : {})
-                }}
-            >
-                {item.firstName} {item.lastName}
-            </div>
-        )}
-    </Draggable>
-)
-
-type DndListProps = {
-    list: User[],
-    onDragEnd: (result: DropResult) => void,
-    dragListStyle?: React.CSSProperties,
-    dragItemStyle?: React.CSSProperties
-}
-
-const DndList = ({list, onDragEnd, dragListStyle = {}, ...props}: DndListProps) => (
-    <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="droppable">
-            {(provided, snapshot) => (
-                <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    style={{
-                        ...(snapshot.isDraggingOver ? dragListStyle : {}),
-                    }}
-                >
-                    {list.map((item, index) => (
-                        <DndItem
-                            key={item.id}
-                            index={index}
-                            item={item}
-                            {...props}
-                        />
-                    ))}
-                    {provided.placeholder}
-                </div>
-            )}
-        </Droppable>
-    </DragDropContext>
-);
-
-type SearchFormProps = {
-    searchTerm: string,
-    onSearchInput: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    onSearchSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-}
-
-const SearchForm = ({searchTerm, onSearchInput, onSearchSubmit}: SearchFormProps) => (
-    <form onSubmit={onSearchSubmit}>
-        <InputWithLabel id="search"
-                        value={searchTerm}
-                        isFocused={true}
-                        onInputChange={onSearchInput}
-        >
-            <strong>Search:</strong>
-        </InputWithLabel>
-
-        &nbsp;&nbsp;&nbsp;
-
-        <button type="submit" disabled={!searchTerm}>
-            Submit
-        </button>
-    </form>
-)
-
 const useStorageState = (key: string, initialState: string) => {
     const [value, setValue] = React.useState(
         localStorage.getItem(key) || initialState
@@ -228,119 +54,6 @@ const useStorageState = (key: string, initialState: string) => {
 
     return [value, setValue] as const;
 }
-
-type ListProps = {
-    list: Story[],
-    onRemoveItem: (item: Story) => void
-};
-
-const List = ({list, onRemoveItem}: ListProps) => (
-    <ul>
-        {list.map((item) => (
-            <Item
-                key={item.objectID}
-                item={item}
-                onRemoveItem={onRemoveItem}
-            />
-        ))}
-    </ul>
-);
-
-type ItemProps = {
-    item: Story,
-    onRemoveItem: (item: Story) => void
-};
-
-
-const Item = ({item, onRemoveItem}: ItemProps) => {
-    return (
-        <li>
-            <span><a href={item.url}>{item.title}</a></span>
-            <span> {item.author} </span>
-            <span> {item.num_comments} </span>
-            <span> {item.points} </span>
-            <span>
-                <button type="button" onClick={() => onRemoveItem(item)}>Remove item</button>
-            </span>
-        </li>
-    );
-};
-
-type InputWithLabelProps = {
-    id: string
-    type?: string,
-    // label: string,
-    value: string,
-    isFocused: boolean
-    onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void
-    children: React.ReactNode
-};
-
-const InputWithLabel = ({id, type = 'text', value, isFocused, onInputChange, children}: InputWithLabelProps) => {
-    const inputRef = React.useRef<HTMLInputElement>(null);
-
-    React.useEffect(() => {
-        if (isFocused && inputRef.current) {
-            inputRef.current.focus();
-        }
-    }, [isFocused]);
-
-    return (
-        <>
-            <label htmlFor={id}>{children}</label> &nbsp;
-            <input
-                ref={inputRef}
-                id={id}
-                type={type}
-                value={value}
-                autoFocus={isFocused}
-                onChange={onInputChange}
-            />
-        </>
-    )
-}
-
-
-type ButtonProps = {
-    text: string,
-    onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
-}
-
-const Button = ({text, onClick}: ButtonProps) => (
-    <button type="button" onClick={onClick}>{text}</button>
-);
-
-type DrinkRadioButtonProps = {
-    value: string,
-    id: string,
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
-}
-
-const DrinkRadioButton = ({value, id, onChange}: DrinkRadioButtonProps) => (
-    <label>
-        <input
-            type="radio"
-            name="drink"
-            value={value}
-            id={id}
-            onChange={onChange}
-        /> {value}
-    </label>
-)
-
-type CheckboxProps = {
-    text: string,
-    onClick: (event: React.MouseEvent<HTMLInputElement>) => void
-}
-
-const CheckboxWithText = ({text, onClick}: CheckboxProps) => (
-    <div>
-        <label>
-            <input type="checkbox" onClick={onClick}/>
-            {text}
-        </label>
-    </div>
-)
 
 type StoriesState = {
     data: Story[];

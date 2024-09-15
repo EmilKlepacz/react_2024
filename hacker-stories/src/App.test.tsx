@@ -4,7 +4,7 @@ import {
     render,
     screen,
     fireEvent,
-    waitFor, waitForElementToBeRemoved,
+    waitFor,
 } from '@testing-library/react';
 
 import App, {
@@ -17,11 +17,13 @@ import App, {
     User,
     storiesReducer,
     reorder,
-    Item,
-    List,
-    SearchForm,
-    InputWithLabel
+    //Item,
+    //SearchForm
+    // InputWithLabel
 } from './App';
+
+import {Item} from "./List.tsx";
+import {SearchForm} from "./SearchForm.tsx";
 
 const storyOne: Story = {
     objectID: 0,
@@ -247,7 +249,7 @@ describe('SearchForm', () => {
 
     //snapshot tests example:
     it('renders snapshot', () => {
-        const { container } = render(<SearchForm {...searchFormProps} />);
+        const {container} = render(<SearchForm {...searchFormProps} />);
         expect(container.firstChild).toMatchSnapshot();
     });
 
