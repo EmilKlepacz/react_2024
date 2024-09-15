@@ -244,6 +244,13 @@ describe('SearchForm', () => {
 
         expect(searchFormProps.onSearchSubmit).toHaveBeenCalledTimes(1);
     });
+
+    //snapshot tests example:
+    it('renders snapshot', () => {
+        const { container } = render(<SearchForm {...searchFormProps} />);
+        expect(container.firstChild).toMatchSnapshot();
+    });
+
 });
 
 /* integration tests */
@@ -366,9 +373,9 @@ describe('App', () => {
 
         //User interaction
         fireEvent.change(screen.queryByDisplayValue('React'), {
-           target: {
-               value: 'JavaScript'
-           }
+            target: {
+                value: 'JavaScript'
+            }
         });
 
         expect(screen.queryByDisplayValue('React')).toBeNull();
