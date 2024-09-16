@@ -43,36 +43,36 @@ const List = ({list, onRemoveItem}: ListProps) => {
         <ul>
             <li style={{display: 'flex'}}>
                 <span style={{width: '40%'}}>
-                    <button
-                        style={{
-                            backgroundColor: sort.sortKey === SortKey.TITLE ? 'lightblue' : 'transparent',
-                        }}
-                        type="button" onClick={() => handleSort(SortKey.TITLE)}>Title
-                    </button>
+                    <ButtonWithSVGSortingIcon
+                        sortKeyColumn={SortKey.TITLE}
+                        sortKey={sort.sortKey}
+                        isReverse={sort.isReverse}
+                        handleSort={handleSort}
+                    />
                 </span>
                 <span style={{width: '30%'}}>
-                    <button
-                        style={{
-                            backgroundColor: sort.sortKey === SortKey.AUTHOR ? 'lightblue' : 'transparent',
-                        }}
-                        type="button" onClick={() => handleSort(SortKey.AUTHOR)}>Author
-                    </button>
+                    <ButtonWithSVGSortingIcon
+                        sortKeyColumn={SortKey.AUTHOR}
+                        sortKey={sort.sortKey}
+                        isReverse={sort.isReverse}
+                        handleSort={handleSort}
+                    />
                 </span>
                 <span style={{width: '10%'}}>
-                    <button
-                        style={{
-                            backgroundColor: sort.sortKey === SortKey.COMMENT ? 'lightblue' : 'transparent',
-                        }}
-                        type="button" onClick={() => handleSort(SortKey.COMMENT)}>Comments
-                    </button>
+                   <ButtonWithSVGSortingIcon
+                       sortKeyColumn={SortKey.COMMENT}
+                       sortKey={sort.sortKey}
+                       isReverse={sort.isReverse}
+                       handleSort={handleSort}
+                   />
                 </span>
                 <span style={{width: '10%'}}>
-                    <button
-                        style={{
-                            backgroundColor: sort.sortKey === SortKey.POINTS ? 'lightblue' : 'transparent',
-                        }}
-                        type="button" onClick={() => handleSort(SortKey.POINTS)}>Points
-                    </button>
+                   <ButtonWithSVGSortingIcon
+                       sortKeyColumn={SortKey.POINTS}
+                       sortKey={sort.sortKey}
+                       isReverse={sort.isReverse}
+                       handleSort={handleSort}
+                   />
                 </span>
                 <span style={{width: '10%'}}>
                     Actions
@@ -89,6 +89,47 @@ const List = ({list, onRemoveItem}: ListProps) => {
         </ul>
     )
 };
+
+type ButtonWithSVGSortingIconProps = {
+    sortKeyColumn: SortKey,
+    sortKey: SortKey,
+    isReverse: boolean,
+    handleSort: (sortKey: SortKey) => void
+}
+
+const ButtonWithSVGSortingIcon =
+    ({sortKeyColumn, sortKey, isReverse, handleSort}: ButtonWithSVGSortingIconProps) => {
+        return (
+            <div>
+                <button
+                    style={{
+                        backgroundColor: sortKey === sortKeyColumn ? 'lightblue' : 'transparent',
+                    }}
+                    type="button" onClick={() => handleSort(sortKeyColumn)}>
+                    {sortKeyColumn === SortKey.TITLE ? 'TITLE' : ''}
+                    {sortKeyColumn === SortKey.AUTHOR ? 'AUTHOR' : ''}
+                    {sortKeyColumn === SortKey.POINTS ? 'POINTS' : ''}
+                    {sortKeyColumn === SortKey.COMMENT ? 'COMMENTS' : ''}
+                </button>
+                {sortKey === sortKeyColumn && (
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="16"
+                        width="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{marginLeft: '8px'}} // Add some space between the text and the icon
+                    >
+                        <path d={isReverse ? "M18 15l-6-6-6 6" : "M6 9l6 6 6-6"}/>
+                    </svg>
+                )}
+            </div>
+        );
+    }
 
 type ItemProps = {
     item: Story,
