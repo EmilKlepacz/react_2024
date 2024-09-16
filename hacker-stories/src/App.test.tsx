@@ -283,7 +283,9 @@ describe('App', () => {
 
         expect(screen.queryByText(/Loading/)).toBeNull();
 
-        expect(screen.getByText('React')).toBeInTheDocument();
+        //we have search field with input 'React' and last search button with label 'React'
+        expect(screen.getAllByText('React').length).toBeGreaterThanOrEqual(2);
+
         expect(screen.getByText('Redux')).toBeInTheDocument();
         expect(screen.getAllByText('Remove item').length).toBe(2);
     });

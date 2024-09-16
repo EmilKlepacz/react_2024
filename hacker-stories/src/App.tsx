@@ -142,6 +142,13 @@ const storiesReducer = (
 
 const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
 
+const extractSearchTerm = (url: string) => url.replace(API_ENDPOINT, '');
+
+const getLastSearches = (urls: string[]) =>
+    urls.slice(-5).map((url) => extractSearchTerm(url));
+
+const getUrl = (searchTerm: string) => `${API_ENDPOINT}${searchTerm}`;
+
 const App = () => {
     const users = [
         {
@@ -163,7 +170,7 @@ const App = () => {
 
     const [searchTerm, setSearchTerm] = useStorageState('search', 'React');
 
-    const [url, setUrl] = useState(`${API_ENDPOINT}${searchTerm}`);
+    const [urls, setUrls] = React.useState([getUrl(searchTerm)]);
 
     const [stories, dispatchStories] = React.useReducer(
         storiesReducer,
@@ -181,8 +188,10 @@ const App = () => {
     const handleFetchStories = React.useCallback(() => {
         dispatchStories({type: 'STORIES_FETCH_INIT'});
 
+        const lastUrl = urls[urls.length - 1];
+
         axios
-            .get(url)
+            .get(lastUrl)
             .then((result) => {
                 dispatchStories({
                     type: 'STORIES_FETCH_SUCCESS',
@@ -192,7 +201,7 @@ const App = () => {
             .catch(() =>
                 dispatchStories({type: 'STORIES_FETCH_FAILURE'})
             );
-    }, [url]);
+    }, [urls]);
 
     React.useEffect(() => {
         handleFetchStories();
@@ -256,15 +265,24 @@ const App = () => {
         console.log(usersList);
     };
 
+    const handleSearch = (searchTerm: string) => {
+        const url = getUrl(searchTerm);
+        setUrls(urls.concat(url));
+    };
+
     const handleSearchInput = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
     };
 
     const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        setUrl(`${API_ENDPOINT}${searchTerm}`)
+        handleSearch(searchTerm);
 
         event.preventDefault();
     }
+
+    const handleLastSearch = (searchTerm: string) => {
+        handleSearch(searchTerm);
+    };
 
     const handleRadioSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSelectedDrink(event.target.value);
@@ -288,6 +306,8 @@ const App = () => {
     const onClickThree = (event: React.MouseEvent<HTMLButtonElement>) => {
         console.log("button three clicked! type of event: " + event.type);
     }
+
+    const lastSearches = getLastSearches(urls);
 
     return (
         <div>
@@ -313,6 +333,19 @@ const App = () => {
                 <List list={stories.data} onRemoveItem={handleRemoveStory}/>
             )}
 
+            {lastSearches.map((searchTerm, index) => (
+                <button
+                    key={searchTerm + index} //Make the key more specific by concatenating it with the index
+                    type="button"
+                    onClick={() => handleLastSearch(searchTerm)}
+                >
+                    {searchTerm}
+                </button>
+            ))}
+
+            &nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;
             <span>
                 <button type="button" onClick={addDummyStory}>Add dummy item</button>
             </span>
