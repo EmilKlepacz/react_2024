@@ -146,7 +146,21 @@ const extractSearchTerm = (url: string) => url.replace(API_ENDPOINT, '');
 
 //gets only 5 proceeding searches
 const getLastSearches = (urls: string[]) =>
-    urls.slice(-6).slice(0, -1).map((url) => extractSearchTerm(url));
+    urls
+        .reduce<string[]>((result, url, index) => {
+            const searchTerm = extractSearchTerm(url); // Step 1: Extract the search term from the URL
+            if (index === 0) {
+                return result.concat(searchTerm); // Step 2: If it's the first URL, add the search term to the result
+            }
+            const previousSearchTerm = result[result.length - 1]; // Step 3: Get the last search term in the result
+            if (searchTerm === previousSearchTerm) {
+                return result; // Step 4: If the search term is the same as the last one, skip it (avoid duplicates)
+            } else {
+                return result.concat(searchTerm); // Step 5: Otherwise, add the search term to the result
+            }
+        }, []) // Start with an empty array `result`
+        .slice(-6) // Step 6: Take the last 6 search terms
+        .slice(0, -1); // Step 7: Exclude the most recent search term
 
 const getUrl = (searchTerm: string) => `${API_ENDPOINT}${searchTerm}`;
 
