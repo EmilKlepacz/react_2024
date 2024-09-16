@@ -1,6 +1,5 @@
 import * as React from "react";
 
-
 type InputWithLabelProps = {
     id: string
     type?: string,

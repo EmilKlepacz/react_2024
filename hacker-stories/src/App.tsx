@@ -11,6 +11,7 @@ import {Button} from "./Button.tsx";
 import {StyledButton} from "./StyledButton.tsx";
 import {DrinkRadioButton} from "./DrinkRadioButton.tsx";
 import {CheckboxWithText} from "./CheckboxWithText.tsx";
+import {LastSearches} from "./LastSearches.tsx";
 
 export {
     reorder,
@@ -350,15 +351,10 @@ const App = () => {
                 <List list={stories.data} onRemoveItem={handleRemoveStory}/>
             )}
 
-            {lastSearches.map((searchTerm, index) => (
-                <button
-                    key={searchTerm + index} //Make the key more specific by concatenating it with the index
-                    type="button"
-                    onClick={() => handleLastSearch(searchTerm)}
-                >
-                    {searchTerm}
-                </button>
-            ))}
+            <LastSearches
+                lastSearches={lastSearches}
+                onLastSearch={handleLastSearch}
+            />
 
             &nbsp;&nbsp;&nbsp;
             &nbsp;&nbsp;&nbsp;
