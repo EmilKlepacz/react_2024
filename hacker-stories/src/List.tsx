@@ -1,4 +1,6 @@
-import {Story} from "./App.tsx";
+import {
+    Story
+} from "./App.tsx";
 import React from "react";
 import {sortBy} from 'lodash';
 
@@ -7,23 +9,35 @@ type ListProps = {
     onRemoveItem: (item: Story) => void
 };
 
-const SORTS: Record<string, (list: Story[]) => Story[]> = {
-    NONE: (list: Story[]) => list,
-    TITLE: (list: Story[]) => sortBy(list, 'title'),
-    AUTHOR: (list: Story[]) => sortBy(list, 'author'),
-    COMMENT: (list: Story[]) => sortBy(list, 'num_comments').reverse(),
-    POINTS: (list: Story[]) => sortBy(list, 'points'),
+enum SortKey {
+    NONE = 'NONE',
+    TITLE = 'TITLE',
+    AUTHOR = 'AUTHOR',
+    COMMENT = 'COMMENT',
+    POINTS = 'POINTS',
+}
+
+const SORTS: Record<SortKey, (list: Story[]) => Story[]> = {
+    [SortKey.NONE]: (list: Story[]) => list,
+    [SortKey.TITLE]: (list: Story[]) => sortBy(list, 'title'),
+    [SortKey.AUTHOR]: (list: Story[]) => sortBy(list, 'author'),
+    [SortKey.COMMENT]: (list: Story[]) => sortBy(list, 'num_comments').reverse(),
+    [SortKey.POINTS]: (list: Story[]) => sortBy(list, 'points'),
 };
 
 const List = ({list, onRemoveItem}: ListProps) => {
-    const [sort, setSort] = React.useState('NONE');
+    const [sort, setSort] = React.useState<{ sortKey: SortKey; isReverse: boolean }>({
+        sortKey: SortKey.NONE,
+        isReverse: false,
+    });
 
-    const handleSort = (sortKey: string) => {
-        setSort(sortKey);
+    const handleSort = (sortKey: SortKey) => {
+        const isReverse = sortKey === sort.sortKey && !sort.isReverse;
+        setSort({sortKey, isReverse});
     }
 
-    const sortFunction: (list: Story[]) => Story[] = SORTS[sort];
-    const sortedList: Story[] = sortFunction(list);
+    const sortFunction: (list: Story[]) => Story[] = SORTS[sort.sortKey];
+    const sortedList: Story[] = sort.isReverse ? sortFunction(list).reverse() : sortFunction(list);
 
     return (
         <ul>
@@ -31,33 +45,33 @@ const List = ({list, onRemoveItem}: ListProps) => {
                 <span style={{width: '40%'}}>
                     <button
                         style={{
-                            backgroundColor: sort === 'TITLE' ? 'lightblue' : 'transparent',
+                            backgroundColor: sort.sortKey === SortKey.TITLE ? 'lightblue' : 'transparent',
                         }}
-                        type="button" onClick={() => handleSort('TITLE')}>Title
+                        type="button" onClick={() => handleSort(SortKey.TITLE)}>Title
                     </button>
                 </span>
                 <span style={{width: '30%'}}>
                     <button
                         style={{
-                            backgroundColor: sort === 'AUTHOR' ? 'lightblue' : 'transparent',
+                            backgroundColor: sort.sortKey === SortKey.AUTHOR ? 'lightblue' : 'transparent',
                         }}
-                        type="button" onClick={() => handleSort('AUTHOR')}>Author
+                        type="button" onClick={() => handleSort(SortKey.AUTHOR)}>Author
                     </button>
                 </span>
                 <span style={{width: '10%'}}>
                     <button
                         style={{
-                            backgroundColor: sort === 'COMMENT' ? 'lightblue' : 'transparent',
+                            backgroundColor: sort.sortKey === SortKey.COMMENT ? 'lightblue' : 'transparent',
                         }}
-                        type="button" onClick={() => handleSort('COMMENT')}>Comments
+                        type="button" onClick={() => handleSort(SortKey.COMMENT)}>Comments
                     </button>
                 </span>
                 <span style={{width: '10%'}}>
                     <button
                         style={{
-                            backgroundColor: sort === 'POINTS' ? 'lightblue' : 'transparent',
+                            backgroundColor: sort.sortKey === SortKey.POINTS ? 'lightblue' : 'transparent',
                         }}
-                        type="button" onClick={() => handleSort('POINTS')}>Points
+                        type="button" onClick={() => handleSort(SortKey.POINTS)}>Points
                     </button>
                 </span>
                 <span style={{width: '10%'}}>
