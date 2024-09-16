@@ -144,8 +144,9 @@ const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
 
 const extractSearchTerm = (url: string) => url.replace(API_ENDPOINT, '');
 
+//gets only 5 proceeding searches
 const getLastSearches = (urls: string[]) =>
-    urls.slice(-5).map((url) => extractSearchTerm(url));
+    urls.slice(-6).slice(0, -1).map((url) => extractSearchTerm(url));
 
 const getUrl = (searchTerm: string) => `${API_ENDPOINT}${searchTerm}`;
 
